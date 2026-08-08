@@ -1,0 +1,76 @@
+{
+  "models": [
+    {
+      "name": "aasist",
+      "modality": "audio",
+      "container_url": "http://audio-aasist",
+      "port": 8001,
+      "health_endpoint": "/health",
+      "predict_endpoint": "/predict",
+      "enabled": true,
+      "weight_file": "weights/AASIST.pth",
+      "description": "Spectro-temporal anti-spoofing via Integrated Graph Attention Networks",
+      "source": "https://github.com/clovaai/aasist"
+    },
+    {
+      "name": "rawnet2",
+      "modality": "audio",
+      "container_url": "http://audio-rawnet2",
+      "port": 8002,
+      "health_endpoint": "/health",
+      "predict_endpoint": "/predict",
+      "enabled": true,
+      "weight_file": "weights/RawNet2.pth",
+      "description": "Raw-waveform end-to-end anti-spoofing model",
+      "source": "https://github.com/Jungjee/RawNet"
+    },
+    {
+      "name": "ftcn",
+      "modality": "video",
+      "container_url": "http://video-ftcn",
+      "port": 8003,
+      "health_endpoint": "/health",
+      "predict_endpoint": "/predict",
+      "enabled": true,
+      "weight_file": "weights/ftcn.pth",
+      "description": "Frequency-Temporal Convolutional Network for temporal inconsistency detection",
+      "source": "https://github.com/yinglinzheng/FTCN"
+    },
+    {
+      "name": "sbi",
+      "modality": "video",
+      "container_url": "http://video-sbi",
+      "port": 8004,
+      "health_endpoint": "/health",
+      "predict_endpoint": "/predict",
+      "enabled": true,
+      "weight_file": "weights/sbi_xception.pth",
+      "description": "Self-Blended Images — detects face-blending and swap boundary artifacts",
+      "source": "https://github.com/mapooon/SelfBlendedImages"
+    },
+    {
+      "name": "npr",
+      "modality": "image",
+      "container_url": "http://image-npr",
+      "port": 8005,
+      "health_endpoint": "/health",
+      "predict_endpoint": "/predict",
+      "enabled": true,
+      "weight_file": "weights/npr.pth",
+      "description": "Detects pixel-level, generator-specific artifacts from GAN/diffusion upsampling",
+      "source": "https://github.com/chuangchuangtan/NPR-DeepfakeDetection"
+    },
+    {
+      "name": "universalfakedetect",
+      "modality": "image",
+      "container_url": "http://image-ufd",
+      "port": 8006,
+      "health_endpoint": "/health",
+      "predict_endpoint": "/predict",
+      "enabled": true,
+      "weight_file": "weights/UniversalFakeDetect.pth",
+      "description": "CLIP-based detector generalizing across unseen generators",
+      "source": "https://github.com/WisconsinAIVision/UniversalFakeDetect"
+    }
+  ]
+}

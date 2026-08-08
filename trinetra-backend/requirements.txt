@@ -1,0 +1,35 @@
+# TRINETRA Backend — gateway + worker Python requirements
+# Pinned for reproducibility.
+
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+python-multipart==0.0.9
+pydantic==2.7.1
+httpx==0.27.0
+
+# ── Async task queue ───────────────────────────────────────────────────────────
+celery[redis]==5.4.0
+redis==5.0.6
+
+# ── Database ───────────────────────────────────────────────────────────────────
+pymongo==4.8.0
+
+# ── PDF generation ────────────────────────────────────────────────────────────
+reportlab==4.2.0
+
+# ── Fusion layer ML ────────────────────────────────────────────────────────────
+scikit-learn==1.5.0
+numpy==1.26.4
+# Optional (install separately for best performance):
+# xgboost==2.1.0
+# lightgbm==4.4.0
+
+# ── C2PA provenance (requires Rust toolchain on first install) ─────────────────
+# c2pa-python==0.6.0    # uncomment once c2pa-rs is available on target platform
+
+# ── HuggingFace datasets (for fusion training) ────────────────────────────────
+datasets==2.20.0
+
+# ── Misc ───────────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1

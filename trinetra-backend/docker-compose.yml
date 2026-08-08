@@ -1,0 +1,247 @@
+##############################################################################
+# TRINETRA — Docker Compose
+#
+# Services:
+#   gateway        — FastAPI gateway (port 8000)
+#   celery-worker  — Celery analysis worker
+#   redis          — Redis message broker + rate-limit counters
+#   mongodb        — MongoDB Atlas-compatible local instance
+#   audio-aasist   — AASIST anti-spoofing (port 8001)
+#   audio-rawnet2  — RawNet2 anti-spoofing (port 8002)
+#   video-ftcn     — FTCN temporal inconsistency (port 8003)
+#   video-sbi      — SBI face-swap detection (port 8004)
+#   image-npr      — NPR pixel-artifact detection (port 8005)
+#   image-ufd      — UniversalFakeDetect CLIP (port 8006)
+#
+# Usage:
+#   docker compose up --build
+#
+# GPU support:
+#   Replace `image: python:3.10-slim` base images with
+#   `nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu20.04` and use
+#   `--extra-index-url https://download.pytorch.org/whl/cu121`
+#   for CUDA torch builds. Update the `deploy` → `resources` → `reservations`
+#   blocks below to allocate GPUs.
+#
+##############################################################################
+
+version: "3.9"
+
+# ── Named volumes ─────────────────────────────────────────────────────────────
+volumes:
+  mongo-data:
+  redis-data:
+  tmp-media:
+  reports:
+
+# ── Shared environment for all services ──────────────────────────────────────
+x-common-env: &common-env
+  REDIS_URL:    redis://redis:6379/0
+  MONGODB_URI:  mongodb://mongodb:27017
+  API_BASE_URL: http://localhost:8000
+  TMP_MEDIA_DIR:  /tmp/trinetra
+  REPORTS_DIR:    /app/reports
+
+# ── Shared build context (avoids duplicating paths) ──────────────────────────
+x-model-base: &model-base
+  restart: unless-stopped
+
+services:
+
+  # ── Infrastructure ─────────────────────────────────────────────────────────
+
+  redis:
+    image: redis:7.2-alpine
+    <<: *model-base
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:7.0
+    <<: *model-base
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: trinetra
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  # ── API Gateway ────────────────────────────────────────────────────────────
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    <<: *model-base
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *common-env
+    volumes:
+      - tmp-media:/tmp/trinetra
+      - reports:/app/reports
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/system-health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Celery Worker ──────────────────────────────────────────────────────────
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    <<: *model-base
+    command: >
+      celery -A celery_worker.app.celery_app worker
+      --loglevel=info
+      --concurrency=4
+      --queues=enterprise,premium,basic
+      --autoscale=8,1
+    environment:
+      <<: *common-env
+    volumes:
+      - tmp-media:/tmp/trinetra
+      - reports:/app/reports
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      audio-aasist:
+        condition: service_healthy
+      audio-rawnet2:
+        condition: service_healthy
+      video-ftcn:
+        condition: service_healthy
+      video-sbi:
+        condition: service_healthy
+      image-npr:
+        condition: service_healthy
+      image-ufd:
+        condition: service_healthy
+
+  # ── Model Containers ───────────────────────────────────────────────────────
+
+  audio-aasist:
+    build:
+      context: .
+      dockerfile: models/audio/aasist/Dockerfile
+      args:
+        SKIP_REPO_CLONE: "0"
+    <<: *model-base
+    ports:
+      - "8001:8001"
+    environment:
+      AASIST_REPO_ROOT: /app/aasist_repo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s
+      retries: 3
+
+  audio-rawnet2:
+    build:
+      context: .
+      dockerfile: models/audio/rawnet2/Dockerfile
+      args:
+        SKIP_WEIGHT_DOWNLOAD: "0"
+    <<: *model-base
+    ports:
+      - "8002:8002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+  video-ftcn:
+    build:
+      context: .
+      dockerfile: models/video/ftcn/Dockerfile
+      args:
+        SKIP_REPO_CLONE: "0"
+        SKIP_WEIGHT_DOWNLOAD: "0"
+    <<: *model-base
+    ports:
+      - "8003:8003"
+    environment:
+      FTCN_REPO_ROOT: /app/ftcn_repo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s
+      retries: 3
+
+  video-sbi:
+    build:
+      context: .
+      dockerfile: models/video/sbi/Dockerfile
+      args:
+        SKIP_WEIGHT_DOWNLOAD: "0"
+    <<: *model-base
+    ports:
+      - "8004:8004"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+  image-npr:
+    build:
+      context: .
+      dockerfile: models/image/npr/Dockerfile
+      args:
+        SKIP_WEIGHT_DOWNLOAD: "0"
+    <<: *model-base
+    ports:
+      - "8005:8005"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+  image-ufd:
+    build:
+      context: .
+      dockerfile: models/image/universalfakedetect/Dockerfile
+      args:
+        SKIP_REPO_CLONE: "0"
+        SKIP_WEIGHT_DOWNLOAD: "0"
+    <<: *model-base
+    ports:
+      - "8006:8006"
+    environment:
+      UFD_REPO_ROOT: /app/ufd_repo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 90s
+      retries: 3

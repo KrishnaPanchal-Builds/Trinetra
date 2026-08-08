@@ -1,0 +1,12 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+python-multipart==0.0.9
+pydantic==2.7.1
+torch==2.3.0+cpu
+torchvision==0.18.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+Pillow==10.3.0
+numpy==1.26.4
+# CLIP
+git+https://github.com/openai/CLIP.git
+timm==1.0.3
