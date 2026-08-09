@@ -1,0 +1,47 @@
+{
+  "task_id": "trk_982347110_x",
+  "authenticity_evidence_score": 87,
+  "risk_level": "HIGH_RISK",
+  "confidence_interval": "HIGH",
+  "primary_anomaly": "SYNTHETIC_AUDIO_DUBBING",
+  "anomaly_timestamps": [
+    {
+      "start": "00:31",
+      "end": "00:39"
+    }
+  ],
+  "modalities_scanned": [
+    "audio",
+    "video"
+  ],
+  "model_results": {
+    "aasist": {
+      "probability": 0.94,
+      "class": "synthetic"
+    },
+    "rawnet2": {
+      "probability": 0.88,
+      "class": "synthetic"
+    },
+    "ftcn": {
+      "probability": 0.12,
+      "class": "authentic"
+    },
+    "sbi": {
+      "probability": 0.09,
+      "class": "authentic"
+    }
+  },
+  "fusion_method_used": "stacking",
+  "model_weight_versions": {
+    "aasist": "v1.0.0-0.94",
+    "rawnet2": "v1.0.0-0.88",
+    "ftcn": "v1.0.0-0.12",
+    "sbi": "v1.0.0-0.09"
+  },
+  "c2pa_manifest_present": false,
+  "uploader_declaration_mismatch": true,
+  "action_recommendation": "AUTO_HOLD_FOR_HUMAN_TRIAGE",
+  "audit_pdf_report_url": "https://api.trinetra.ai/reports/trk_982347110_x.pdf",
+  "created_at": "2026-08-08T19:40:00Z"
+}
