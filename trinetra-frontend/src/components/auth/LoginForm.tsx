@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, ShieldCheck } from "lucide-react";
 
 // ─── Password field with accessible show/hide toggle ─────────────────────────
@@ -58,6 +59,7 @@ function PasswordInput({
 // ─── Login Form ───────────────────────────────────────────────────────────────
 
 export function LoginForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
@@ -69,8 +71,10 @@ export function LoginForm() {
     e.preventDefault();
     if (!canSubmit || loading) return;
     setLoading(true);
-    // Authentication backend not yet connected — UI-ready state only
-    setTimeout(() => setLoading(false), 1800);
+    setTimeout(() => {
+      setLoading(false);
+      router.push("/portal");
+    }, 800);
   };
 
   return (

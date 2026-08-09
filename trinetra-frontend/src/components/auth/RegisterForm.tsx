@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, Info } from "lucide-react";
 
 // ─── Shared input class (matches /login exactly) ──────────────────────────────
@@ -186,6 +187,7 @@ function validatePassword(p: string) {
 
 // ─── Registration Form ────────────────────────────────────────────────────────
 export function RegisterForm() {
+  const router = useRouter();
   // Section 01 — Account
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -231,8 +233,10 @@ export function RegisterForm() {
     e.preventDefault();
     if (!canSubmit) return;
     setLoading(true);
-    // Registration backend not yet connected — UI-ready state only
-    setTimeout(() => setLoading(false), 2000);
+    setTimeout(() => {
+      setLoading(false);
+      router.push("/portal");
+    }, 800);
   };
 
   return (
