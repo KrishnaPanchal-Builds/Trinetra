@@ -1,4 +1,4 @@
-"""
+﻿"""
 api/auth.py
 -----------
 API key authentication and tier rate-limiting middleware.
@@ -102,7 +102,7 @@ async def require_api_key(
             detail="API key has been revoked.",
         )
 
-    # Rate limiting (Redis token bucket — per minute)
+    # Rate limiting (Redis token bucket - per minute)
     tier = key_doc.get("tier", "basic")
     limits = TIER_LIMITS.get(tier, TIER_LIMITS["basic"])
     owner = key_doc.get("owner_id", key_doc["_id"])
@@ -133,7 +133,7 @@ async def require_api_key(
     except HTTPException:
         raise
     except Exception:
-        # If Redis is down, degrade gracefully — don't block the request
+        # If Redis is down, degrade gracefully - don't block the request
         pass
 
     return key_doc
@@ -148,3 +148,4 @@ def generate_api_key(key_type: str = "live") -> str:
     """Generate a new cryptographic API key."""
     prefix = "sk_live_" if key_type == "live" else "sk_test_"
     return prefix + secrets.token_urlsafe(32)
+

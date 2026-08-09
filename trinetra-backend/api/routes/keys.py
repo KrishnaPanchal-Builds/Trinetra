@@ -1,4 +1,4 @@
-"""
+﻿"""
 api/routes/keys.py
 ------------------
 POST /api/v1/keys         → generate a new API key
@@ -36,7 +36,7 @@ def _get_mongo_keys():
     summary="Generate a new API key",
     description=(
         "Creates a new Test_Key or Live_Key for the authenticated account.  "
-        "The raw key is returned only once — store it immediately."
+        "The raw key is returned only once - store it immediately."
     ),
 )
 async def create_key(
@@ -95,3 +95,4 @@ async def register_webhook(
     )
 
     return WebhookRegisterResponse(registered_url=body.url, updated_at=now)
+

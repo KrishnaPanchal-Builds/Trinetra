@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 scripts/generate_rawnet2_weights.py
 -------------------------------------
@@ -21,7 +21,7 @@ from pathlib import Path
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 
-# Default output path — overridden by __main__ via --output or RAWNET2_WEIGHTS_PATH
+# Default output path - overridden by __main__ via --output or RAWNET2_WEIGHTS_PATH
 OUT_PATH: Path = BACKEND_ROOT / "models" / "audio" / "rawnet2" / "weights" / "RawNet2.pth"
 
 sys.path.insert(0, str(BACKEND_ROOT))
@@ -251,7 +251,7 @@ def generate_with_struct() -> bool:
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Convert numpy arrays to a format torch.load understands:
-    # Use pickle with numpy arrays — torch.load can handle this with
+    # Use pickle with numpy arrays - torch.load can handle this with
     # weights_only=False (the default) since numpy arrays are serializable.
     import pickle as _pickle
     with open(out_path, "wb") as f:
@@ -289,3 +289,4 @@ if __name__ == "__main__":
             success = False
 
     sys.exit(0 if success else 1)
+

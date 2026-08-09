@@ -1,4 +1,4 @@
-"""
+﻿"""
 sdk/base_wrapper.py
 -------------------
 Shared contract every TRINETRA model wrapper must satisfy.
@@ -24,7 +24,7 @@ from pydantic import BaseModel
 
 
 # ---------------------------------------------------------------------------
-# Response schemas (canonical — matches Section 8 of the implementation plan)
+# Response schemas (canonical - matches Section 8 of the implementation plan)
 # ---------------------------------------------------------------------------
 
 
@@ -100,7 +100,7 @@ class BaseModelWrapper(abc.ABC):
     def build_app(self) -> FastAPI:
         """Create and return the FastAPI application for this model."""
         app = FastAPI(
-            title=f"TRINETRA — {self.MODEL_NAME.upper()} Model Microservice",
+            title=f"TRINETRA - {self.MODEL_NAME.upper()} Model Microservice",
             version="1.0.0",
             description=(
                 f"Exposes `GET /health` and `POST /predict` for the "
@@ -144,3 +144,4 @@ class BaseModelWrapper(abc.ABC):
             return PredictResponse(probability=prob, model_class=model_class)
 
         return app
+

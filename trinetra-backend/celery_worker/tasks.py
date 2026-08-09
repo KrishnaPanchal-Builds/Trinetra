@@ -1,4 +1,4 @@
-"""
+﻿"""
 celery_worker/tasks.py
 -----------------------
 Core Celery task: run_analysis
@@ -305,7 +305,7 @@ def run_analysis(
         _cleanup(file_path)
 
         elapsed = time.time() - start_time
-        print(f"[Worker] {task_id} completed in {elapsed:.2f}s — AES={aes}, risk={risk}")
+        print(f"[Worker] {task_id} completed in {elapsed:.2f}s - AES={aes}, risk={risk}")
         return result
 
     except SoftTimeLimitExceeded:
@@ -384,3 +384,4 @@ def _cleanup(file_path: str) -> None:
         Path(file_path).unlink(missing_ok=True)
     except Exception:
         pass
+

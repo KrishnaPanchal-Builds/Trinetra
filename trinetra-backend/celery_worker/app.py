@@ -1,7 +1,7 @@
-"""
+﻿"""
 celery_worker/app.py
 --------------------
-Celery application instance — shared between tasks.py and the gateway.
+Celery application instance - shared between tasks.py and the gateway.
 """
 
 from __future__ import annotations
@@ -54,3 +54,4 @@ celery_app.conf.update(
     # ── Imports ───────────────────────────────────────────────────────────────
     include=["celery_worker.tasks"],
 )
+

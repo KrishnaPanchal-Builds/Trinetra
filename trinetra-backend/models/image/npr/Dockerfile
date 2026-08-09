@@ -1,12 +1,12 @@
 # --------------------------------------------------------------------------
-# TRINETRA — NPR (Image Deepfake Detector) Container
+# TRINETRA - NPR (Image Deepfake Detector) Container
 # --------------------------------------------------------------------------
-# Build context: trinetra-backend/models/image/npr/
+# Build context root: trinetra-backend/
 # --------------------------------------------------------------------------
 
 FROM python:3.10-slim
 
-# System packages: libGL for OpenCV (used by PIL), wget for weight download
+# System packages: libGL for OpenCV/PIL, wget for weight download
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libgl1 \
         libglib2.0-0 \
@@ -18,40 +18,38 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # ── Python dependencies ──────────────────────────────────────────────────
-# Pin versions to avoid silent API changes between builds.
-COPY requirements.txt .
+# IMPORTANT: build context root is trinetra-backend/ so the path must be
+# relative to that root, not just "requirements.txt".
+COPY models/image/npr/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ── Application code ──────────────────────────────────────────────────────
-# Copy shared SDK first (changes rarely → better layer caching)
 COPY sdk/                  /app/sdk/
-
-# Copy this model's source
 COPY models/image/npr/     /app/models/image/npr/
 
-# Create weights directory; actual weights are mounted or downloaded at
-# runtime via the download script below.
 RUN mkdir -p /app/weights
 
 # ── Weight download ────────────────────────────────────────────────────────
-# NPR.pth is hosted on HuggingFace (siddharthksah/deepsafe-weights).
-# The GitHub release URL does not exist; the HuggingFace URL is authoritative.
-# If SKIP_WEIGHT_DOWNLOAD=1 (dev/CI), skip this step.
-ARG SKIP_WEIGHT_DOWNLOAD=0
-RUN if [ "$SKIP_WEIGHT_DOWNLOAD" = "0" ]; then \
-        echo "Downloading NPR weights from HuggingFace..." \
-        && wget -q --show-progress -O /app/weights/npr.pth \
-            "https://huggingface.co/siddharthksah/deepsafe-weights/resolve/main/NPR.pth" \
-        && echo "NPR weights downloaded (HuggingFace)." \
-        || ( echo "WARNING: HuggingFace download failed. Trying secondary source..." \
-             && wget -q -O /app/weights/npr.pth \
-                "https://huggingface.co/datasets/siddharthksah/deepsafe-weights/resolve/main/NPR.pth" \
-             && echo "NPR weights downloaded (secondary)." \
-             || echo "WARNING: could not download NPR weights — container starts in dev mode." ); \
+# NPR weights (ResNet-50 fine-tuned on GAN upsampling artifacts).
+#
+# The siddharthksah/deepsafe-weights HuggingFace repo does NOT contain NPR.pth.
+# Verified file tree: no npr/ folder, no NPR.pth at any path.
+#
+# Source: chuangchuangtan/NPR-DeepfakeDetection Google Drive
+# (no official direct download URL — weights are distributed via the paper's GDrive).
+# We copy the pre-downloaded weights from the build context instead.
+# If not present, the container falls back to random weights (dev mode).
+COPY models/image/npr/weights/ /app/weights/
+
+RUN if [ -f /app/weights/npr.pth ] && [ "$(stat -c%s /app/weights/npr.pth)" -gt "10000" ]; then \
+        echo "NPR weights found ($(du -h /app/weights/npr.pth | cut -f1))."; \
+    else \
+        echo "WARNING: NPR weights not found or too small. Container starts in dev mode (random weights)."; \
+        echo "To fix: obtain npr.pth from chuangchuangtan/NPR-DeepfakeDetection and place in models/image/npr/weights/"; \
     fi
 
 # ── Healthcheck ───────────────────────────────────────────────────────────
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
     CMD curl -f http://localhost:8005/health || exit 1
 
 # ── Launch ────────────────────────────────────────────────────────────────

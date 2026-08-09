@@ -1,4 +1,4 @@
-"""
+﻿"""
 scripts/seed_keys.py
 --------------------
 Seeds MongoDB with test API keys for all three tiers (Phase 12 handoff).
@@ -6,7 +6,7 @@ Seeds MongoDB with test API keys for all three tiers (Phase 12 handoff).
 Run ONCE after MongoDB is up:
     python scripts/seed_keys.py
 
-Output: prints the raw API keys to stdout — save them immediately.
+Output: prints the raw API keys to stdout - save them immediately.
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ def seed():
 
     tiers = ["basic", "premium", "enterprise"]
     print("\n" + "="*60)
-    print("TRINETRA — Seeding test API keys")
+    print("TRINETRA - Seeding test API keys")
     print("="*60 + "\n")
 
     for tier in tiers:
@@ -53,9 +53,10 @@ def seed():
         print(f"  Tier: {tier:<12}  Key: {raw_key}")
 
     print("\n" + "="*60)
-    print("Keys seeded. Store these securely — they will not be shown again.")
+    print("Keys seeded. Store these securely -- they will not be shown again.")
     print("="*60 + "\n")
 
 
 if __name__ == "__main__":
     seed()
+

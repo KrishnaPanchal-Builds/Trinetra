@@ -1,10 +1,10 @@
-"""
+﻿"""
 models/audio/aasist/wrapper.py
 ------------------------------
 AASIST anti-spoofing microservice.
 
 Source: https://github.com/clovaai/aasist
-Model:  AASIST — Audio Anti-Spoofing using Integrated Spectro-Temporal Graph
+Model:  AASIST - Audio Anti-Spoofing using Integrated Spectro-Temporal Graph
         Attention Networks.
 
 The AASIST repo ships its own model definition files under `models/`.
@@ -73,7 +73,7 @@ def _load_audio_to_tensor(file_bytes: bytes, target_sr: int = 16000) -> torch.Te
         tensor = torch.from_numpy(data)
         if tensor.ndim > 1:
             tensor = tensor.mean(dim=1)
-        # Resample if needed (simple decimation — good enough for triage)
+        # Resample if needed (simple decimation - good enough for triage)
         if sr != target_sr:
             ratio = target_sr / sr
             n_out = int(len(tensor) * ratio)
@@ -112,7 +112,7 @@ class AASISTWrapper(BaseModelWrapper):
         else:
             print(
                 "[AASIST] WARNING: AASIST repo or weights not found. "
-                "Running stub model — DEVELOPMENT MODE ONLY."
+                "Running stub model - DEVELOPMENT MODE ONLY."
             )
             self._model = None
 
@@ -133,7 +133,7 @@ class AASISTWrapper(BaseModelWrapper):
 
         with torch.no_grad():
             _, output = self._model(waveform)  # AASIST returns (emb, logits)
-            # output shape: [1, 2]  — index 1 = spoof class
+            # output shape: [1, 2]  - index 1 = spoof class
             probs = torch.softmax(output, dim=1)
             spoof_prob = probs[0, 1].item()
 
@@ -142,3 +142,4 @@ class AASISTWrapper(BaseModelWrapper):
 
 _wrapper = AASISTWrapper()
 app = _wrapper.build_app()
+

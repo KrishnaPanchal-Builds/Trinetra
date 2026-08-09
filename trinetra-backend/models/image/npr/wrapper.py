@@ -1,4 +1,4 @@
-"""
+﻿"""
 models/image/npr/wrapper.py
 ---------------------------
 NPR (Neural Pattern Recognition) deepfake detector microservice.
@@ -76,7 +76,7 @@ class NPRWrapper(BaseModelWrapper):
             # Dev/CI mode: random weights so the service still starts and is callable.
             print(
                 f"[NPR] WARNING: weight file not found at {weights_path}. "
-                "Running with random (untrained) weights — DEVELOPMENT MODE ONLY."
+                "Running with random (untrained) weights - DEVELOPMENT MODE ONLY."
             )
 
         backbone.eval()
@@ -104,8 +104,9 @@ class NPRWrapper(BaseModelWrapper):
 
 
 # ---------------------------------------------------------------------------
-# Entrypoint — run with:  uvicorn wrapper:app --host 0.0.0.0 --port 8005
+# Entrypoint - run with:  uvicorn wrapper:app --host 0.0.0.0 --port 8005
 # ---------------------------------------------------------------------------
 
 _wrapper = NPRWrapper()
 app = _wrapper.build_app()
+

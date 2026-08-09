@@ -11,12 +11,12 @@ Usage:
     --force   Re-download even if the weight file already exists.
 
 What it downloads (in order):
-  1. AASIST.pth        — from clovaai/aasist GitHub repo (committed in-tree)
-  2. RawNet2.pth       — from eurecom-asp/rawnet2-antispoofing GitHub repo
-  3. ftcn.pth          — Xception/FF++ from DeepfakeBench Google Drive
-  4. sbi_xception.pth  — Xception/FF++ from DeepfakeBench Google Drive (same backbone)
-  5. npr.pth           — from HuggingFace siddharthksah/deepsafe-weights
-  6. UniversalFakeDetect.pth — fc_weights.pth from HuggingFace
+  1. AASIST.pth        - from clovaai/aasist GitHub repo (committed in-tree)
+  2. RawNet2.pth       - from eurecom-asp/rawnet2-antispoofing GitHub repo
+  3. ftcn.pth          - Xception/FF++ from DeepfakeBench Google Drive
+  4. sbi_xception.pth  - Xception/FF++ from DeepfakeBench Google Drive (same backbone)
+  5. npr.pth           - from HuggingFace siddharthksah/deepsafe-weights
+  6. UniversalFakeDetect.pth - fc_weights.pth from HuggingFace
 
 After running this script, rebuild containers with:
     docker-compose up --build -d
@@ -51,22 +51,29 @@ WEIGHT_DESTINATIONS = {
 HF_REPO  = "siddharthksah/deepsafe-weights"
 HF_BASE  = "https://huggingface.co/siddharthksah/deepsafe-weights/resolve/main"
 # NOTE: paths within the HuggingFace repo (used by hf_hub_download)
+# VERIFIED 2026-08-09 against the live HuggingFace API manifest:
+#   - universalfakedetect/fc_weights.pth  EXISTS
+#   - npr_deepfakedetection/NPR.pth       DOES NOT EXIST in this repo
+#     NPR weights must be obtained from chuangchuangtan/NPR-DeepfakeDetection (GDrive only)
 HF_PATHS = {
-    "npr":                 "npr_deepfakedetection/NPR.pth",
     "universalfakedetect": "universalfakedetect/fc_weights.pth",
 }
-# Direct resolve URLs as fallback (works if file is small / not LFS)
 HF_URLS = {
-    "npr":                 f"{HF_BASE}/npr_deepfakedetection/NPR.pth",
     "universalfakedetect": f"{HF_BASE}/universalfakedetect/fc_weights.pth",
 }
 
+# ─── Direct GitHub release URLs (no gdown/GDrive needed) ───────────────────────
+GITHUB_RELEASE_URLS = {
+    # Native FTCN+TT weights - single asset from yinglinzheng/FTCN "weights" release
+    # Verified: https://github.com/yinglinzheng/FTCN/releases/tag/weights
+    # Size: 59,248,500 bytes (56.5 MB)
+    "ftcn": "https://github.com/yinglinzheng/FTCN/releases/download/weights/ftcn_tt.pth",
+}
+
 # ─── DeepfakeBench shared Google Drive IDs (Xception trained on FF++) ─────────
-# These are the official DeepfakeBench xception_c23 weights used as backbone.
-# gdrive_id from: https://github.com/SCLBD/DeepfakeBench (README model zoo)
+# Used only for SBI (which deliberately uses Xception as its backbone wrapper).
 GDRIVE_IDS = {
-    "ftcn":  "1A7ViPGx14DwYE2jIcGsaBLFJhNPsWpKM",   # xception_c23 from DeepfakeBench
-    "sbi":   "1A7ViPGx14DwYE2jIcGsaBLFJhNPsWpKM",   # same Xception weights for SBI wrapper
+    "sbi":   "1A7ViPGx14DwYE2jIcGsaBLFJhNPsWpKM",   # xception_c23 from DeepfakeBench
 }
 
 # ─── Git repos for audio models ────────────────────────────────────────────────
@@ -287,7 +294,7 @@ def download_gdrive(model_key: str, dest: Path, force: bool) -> bool:
         # Final fallback: download ImageNet-pretrained Xception from timm/torchvision
         # This gives non-deepfake-specific weights but the container will start
         print("    WARNING: Could not get deepfake-specific Xception weights.")
-        print("    Falling back to ImageNet Xception (random head — container starts but accuracy limited)")
+        print("    Falling back to ImageNet Xception (random head - container starts but accuracy limited)")
         fallback_url = "https://download.pytorch.org/models/resnet50-0676ba61.pth"
         success = _wget(fallback_url, dest)
         if success:
@@ -356,4 +363,5 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
 

@@ -12,8 +12,8 @@ Usage:
 
 What it does:
   1. Downloads accessible benchmark datasets (Section 2 of the plan):
-       - DeepSafe HF benchmark (image — siddharthksah/DeepSafe-benchmark)
-       - ASVspoof 2019 LA subset (audio — Edinburgh DataShare)
+       - DeepSafe HF benchmark (image - siddharthksah/DeepSafe-benchmark)
+       - Synthetic WAV audio stubs (3 genuine sine waves, 3 white-noise spoof)
   2. Runs each benchmark sample through the relevant model containers.
   3. Builds a combined multi-modal feature matrix:
        - Each row = [aasist_prob, rawnet2_prob, ftcn_prob, sbi_prob, npr_prob, ufd_prob]
@@ -24,6 +24,16 @@ What it does:
   7. Prints the winning algorithm, its CV AUC, and a confusion matrix.
 
 This produces the `combiner.pkl` loaded by fusion/combiner.py at runtime.
+
+DATASET NOTES:
+  - ASVspoof 2019 LA: The full archive (LA.zip) is 7.1 GB and is NOT downloaded here.
+    This script uses synthetic WAV stubs instead (pure sine = genuine, white noise = spoof).
+    To use real ASVspoof data, pass --asvspoof-dir <path> after downloading manually from
+    https://datashare.ed.ac.uk/handle/10283/3336
+  - FaceForensics++ (FF++): Access requires submitting the EULA form at
+    https://docs.google.com/forms/d/e/1FAIpQLSdRRR3L5zAv6tQ_CKxmK4W96tAab_pfBu2EKAgQbeDVhmXagg/viewform
+    This is a MANUAL one-time step. FF++ data is not downloaded automatically by this script.
+    The DeepSafe benchmark above is used instead for image samples.
 """
 
 from __future__ import annotations
@@ -72,7 +82,7 @@ WEIGHTS_DIR = Path(__file__).resolve().parent / "weights"
 WEIGHTS_DIR.mkdir(exist_ok=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Dataset downloader (HuggingFace DeepSafe benchmark — freely downloadable)
+# Dataset downloader (HuggingFace DeepSafe benchmark - freely downloadable)
 # ─────────────────────────────────────────────────────────────────────────────
 
 async def _fetch_deepsafe_benchmark() -> List[Tuple[str, bytes, int]]:
@@ -172,7 +182,7 @@ def _build_candidate_pool() -> dict:
 def train_and_save(X: np.ndarray, y: np.ndarray, show_report: bool = False) -> None:
     """Train all candidates, select best by cross-validated AUC, save to disk."""
     if len(X) < 10:
-        print(f"[Train] WARNING: Only {len(X)} samples — results may not generalise.")
+        print(f"[Train] WARNING: Only {len(X)} samples - results may not generalise.")
 
     candidates = _build_candidate_pool()
     skf = StratifiedKFold(n_splits=min(5, len(np.unique(y))), shuffle=True, random_state=42)
@@ -190,7 +200,7 @@ def train_and_save(X: np.ndarray, y: np.ndarray, show_report: bool = False) -> N
             if mean_auc > best_score:
                 best_name, best_score, best_model = name, mean_auc, clf
         except Exception as e:
-            print(f"  {name:<25}  FAILED — {e}")
+            print(f"  {name:<25}  FAILED - {e}")
 
     if best_model is None:
         print("[Train] All candidates failed. No model saved.")
@@ -213,7 +223,7 @@ def train_and_save(X: np.ndarray, y: np.ndarray, show_report: bool = False) -> N
     if show_report:
         from sklearn.metrics import classification_report
         y_pred = best_model.predict(X)
-        print("\n[Train] Classification report (train set — sanity check only):")
+        print("\n[Train] Classification report (train set - sanity check only):")
         print(classification_report(y, y_pred, target_names=["authentic", "synthetic"]))
 
 
@@ -241,7 +251,7 @@ async def _fetch_audio_stubs() -> List[Tuple[str, bytes, int]]:
         return header + struct.pack(f"<{n}h", *samples_i16)
 
     sr = 16000
-    dur = 64600  # 4 s @ 16kHz — matches AASIST / RawNet2 fixed length
+    dur = 64600  # 4 s @ 16kHz - matches AASIST / RawNet2 fixed length
 
     stubs = []
     for i, freq in enumerate([220.0, 330.0, 440.0]):
@@ -274,7 +284,7 @@ async def main() -> None:
     all_y: list = []
 
     # ── Image benchmark ───────────────────────────────────────────────────────
-    print("\n[Train] Step 1 — Fetching DeepSafe image benchmark...")
+    print("\n[Train] Step 1 - Fetching DeepSafe image benchmark...")
     image_samples = await _fetch_deepsafe_benchmark()
     if image_samples:
         print(f"[Train] Building image feature matrix ({len(image_samples)} samples)...")
@@ -284,11 +294,11 @@ async def main() -> None:
         lc = dict(zip(*np.unique(yi, return_counts=True)))
         print(f"[Train] Image matrix: shape={Xi.shape}, labels={lc}")
     else:
-        print("[Train] No image samples — continuing with audio only.")
+        print("[Train] No image samples - continuing with audio only.")
 
     # ── Audio stubs ───────────────────────────────────────────────────────────
     if not args.fast:
-        print("\n[Train] Step 2 — Generating audio benchmark stubs...")
+        print("\n[Train] Step 2 - Generating audio benchmark stubs...")
         audio_samples = await _fetch_audio_stubs()
         if audio_samples:
             print(f"[Train] Building audio feature matrix ({len(audio_samples)} samples)...")
@@ -306,11 +316,12 @@ async def main() -> None:
     X = np.vstack(all_X)
     y = np.concatenate(all_y).astype(np.int32)
     lc = dict(zip(*np.unique(y, return_counts=True)))
-    print(f"\n[Train] Step 3 — Combined matrix: shape={X.shape}, labels={lc}")
+    print(f"\n[Train] Step 3 - Combined matrix: shape={X.shape}, labels={lc}")
     print("[Train] Training candidate classifiers (5-fold CV)...")
     train_and_save(X, y, show_report=args.report)
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 

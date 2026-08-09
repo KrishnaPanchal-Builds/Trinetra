@@ -40,8 +40,10 @@ FTCN_REPO = Path(os.environ.get("FTCN_REPO_ROOT", "/app/ftcn_repo"))
 if FTCN_REPO.exists():
     sys.path.insert(0, str(FTCN_REPO))
 
+# Try to import the native FTCN PluginLoader (from the cloned repo)
 try:
-    from model import get_model as ftcn_get_model  # from upstream FTCN repo
+    from utils.plugin_loader import PluginLoader as FTCNPluginLoader  # noqa
+    from config import config as ftcn_cfg                              # noqa
     _FTCN_NATIVE = True
 except ImportError:
     _FTCN_NATIVE = False
@@ -165,32 +167,56 @@ _TRANSFORM = T.Compose([
 
 class FTCNWrapper(BaseModelWrapper):
     MODEL_NAME = "ftcn"
+    # ftcn_tt.pth is the native checkpoint; also used as fallback path for Xception
     WEIGHTS_PATH = Path("weights/ftcn.pth")
+    _NATIVE_CKPT = FTCN_REPO / "checkpoints" / "ftcn_tt.pth"
 
     def _load_model(self) -> None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self._device = device
+        self._native_mode = False
 
-        # Try native FTCN model first, fall back to Xception
-        if _FTCN_NATIVE and Path(self.WEIGHTS_PATH).exists():
-            model = ftcn_get_model()
-            state = torch.load(self.WEIGHTS_PATH, map_location=device)
-            if isinstance(state, dict) and "model" in state:
+        # ── Try native FTCN via PluginLoader ──────────────────────────────
+        if _FTCN_NATIVE and self._NATIVE_CKPT.exists():
+            try:
+                import yaml, os as _os
+                yaml_path = FTCN_REPO / "ftcn_tt.yaml"
+                if yaml_path.exists():
+                    ftcn_cfg.init_with_yaml()
+                    ftcn_cfg.update_with_yaml(str(yaml_path))
+                    ftcn_cfg.freeze()
+
+                classifier = FTCNPluginLoader.get_classifier(
+                    ftcn_cfg.classifier_type if hasattr(ftcn_cfg, "classifier_type") else "ftcn_tt"
+                )()
+                # Use CPU map since we don't assume CUDA in production containers
+                ckpt = torch.load(str(self._NATIVE_CKPT), map_location=device)
+                if isinstance(ckpt, dict) and "state_dict" in ckpt:
+                    ckpt = ckpt["state_dict"]
+                classifier.load_state_dict(ckpt, strict=False)
+                classifier.eval()
+                classifier.to(device)
+                self._model = classifier
+                self._native_mode = True
+                print("[FTCN] Loaded native FTCN model (ftcn_tt.pth via PluginLoader).")
+                return
+            except Exception as e:
+                print(f"[FTCN] Native load failed ({e}), falling back to XceptionNet.")
+
+        # ── Xception fallback (DeepfakeBench weights or random) ───────────
+        model = XceptionFallback(nb_classes=2)
+        wp = Path(self.WEIGHTS_PATH)
+        if wp.exists():
+            state = torch.load(wp, map_location=device, weights_only=False)
+            if isinstance(state, dict) and "state_dict" in state:
+                state = state["state_dict"]
+            elif isinstance(state, dict) and "model" in state:
                 state = state["model"]
             state = {k.replace("module.", ""): v for k, v in state.items()}
             model.load_state_dict(state, strict=False)
-            print("[FTCN] Loaded native FTCN model.")
+            print("[FTCN] Loaded XceptionNet fallback weights.")
         else:
-            model = XceptionFallback(nb_classes=2)
-            if Path(self.WEIGHTS_PATH).exists():
-                state = torch.load(self.WEIGHTS_PATH, map_location=device)
-                if isinstance(state, dict) and "state_dict" in state:
-                    state = state["state_dict"]
-                state = {k.replace("module.", ""): v for k, v in state.items()}
-                model.load_state_dict(state, strict=False)
-                print("[FTCN] Loaded XceptionNet fallback weights.")
-            else:
-                print("[FTCN] WARNING: No weights found. Dev/random mode.")
+            print("[FTCN] WARNING: No weights found. Dev/random mode.")
 
         model.eval()
         self._model = model.to(device)
@@ -199,14 +225,13 @@ class FTCNWrapper(BaseModelWrapper):
         if self._model is None:
             return 0.5
 
-        # Try to detect if this is a video file (check magic bytes)
+        # Detect video vs image
         is_video = file_bytes[:4] in (b"\x00\x00\x00\x18", b"\x00\x00\x00\x1c") or \
                    file_bytes[4:8] == b"ftyp" or file_bytes[:3] == b"ID3"
 
         if is_video:
             frames = _extract_frames(file_bytes, n_frames=8)
         else:
-            # Single frame image passed directly
             frames = [Image.open(io.BytesIO(file_bytes)).convert("RGB")]
 
         if not frames:
@@ -215,12 +240,18 @@ class FTCNWrapper(BaseModelWrapper):
         tensors = torch.stack([_TRANSFORM(f) for f in frames]).to(self._device)
 
         with torch.no_grad():
-            logits = self._model(tensors)  # [N, 2]
-            probs = torch.softmax(logits, dim=1)
-            fake_prob = probs[:, 1].mean().item()
+            output = self._model(tensors)
+            # Native FTCN returns dict {"final_output": Tensor}
+            if isinstance(output, dict):
+                fake_prob = float(output.get("final_output", torch.tensor(0.5)).mean())
+            else:
+                # XceptionFallback returns [N, 2] logits
+                probs = torch.softmax(output, dim=1)
+                fake_prob = probs[:, 1].mean().item()
 
         return float(fake_prob)
 
 
 _wrapper = FTCNWrapper()
 app = _wrapper.build_app()
+

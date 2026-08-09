@@ -1,4 +1,4 @@
-"""
+﻿"""
 reports/pdf_generator.py
 ------------------------
 Phase 7: PDF audit report generation using ReportLab.
@@ -108,7 +108,7 @@ def generate_pdf_report(
         spaceAfter=6 * mm,
     )
 
-    story.append(Paragraph("TRINETRA — Deepfake Audit Report", header_style))
+    story.append(Paragraph("TRINETRA - Deepfake Audit Report", header_style))
     story.append(Paragraph(
         f"Task ID: <b>{task_id}</b> &nbsp;|&nbsp; "
         f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}",
@@ -137,7 +137,7 @@ def generate_pdf_report(
 
     story.append(Paragraph(f"AES: {aes}/100", aes_style))
     story.append(Paragraph(
-        f"{risk.replace('_', ' ')} — Confidence: {confidence}", risk_style
+        f"{risk.replace('_', ' ')} - Confidence: {confidence}", risk_style
     ))
     story.append(HRFlowable(width="100%", thickness=0.5, color=colors.lightgrey))
     story.append(Spacer(1, 4 * mm))
@@ -150,7 +150,7 @@ def generate_pdf_report(
 
     summary_data = [
         ["Primary Anomaly", primary_anomaly.replace("_", " ")],
-        ["Modalities Scanned", ", ".join(modalities_scanned) or "—"],
+        ["Modalities Scanned", ", ".join(modalities_scanned) or "-"],
         ["Uploader Declaration",
          f'"{uploader_declaration}"' if uploader_declaration else "Not provided"],
         ["Action Recommendation", _action_from_risk(risk).replace("_", " ")],
@@ -181,11 +181,11 @@ def generate_pdf_report(
     model_rows = [model_header]
     for model_name, result in model_results.items():
         if result is None:
-            row = [model_name, "N/A (container offline)", "—", "—"]
+            row = [model_name, "N/A (container offline)", "-", "-"]
         else:
             prob = result.get("probability", 0.5)
             cls  = result.get("class", "unknown")
-            ver  = weight_versions.get(model_name, "—")
+            ver  = weight_versions.get(model_name, "-")
             row = [model_name, f"{prob:.4f}", cls, ver]
         model_rows.append(row)
 
@@ -229,7 +229,7 @@ def generate_pdf_report(
         story.append(Paragraph("Anomaly Timestamps", styles["Heading2"]))
         story.append(Spacer(1, 2 * mm))
         ts_data = [["Start", "End"]] + [
-            [ts.get("start", "—"), ts.get("end", "—")] for ts in anomaly_timestamps
+            [ts.get("start", "-"), ts.get("end", "-")] for ts in anomaly_timestamps
         ]
         ts_table = Table(ts_data, colWidths=[8 * cm, 8 * cm])
         ts_table.setStyle(TableStyle([
@@ -269,3 +269,4 @@ def _action_from_risk(risk: str) -> str:
         "MEDIUM_RISK":         "REVIEW_RECOMMENDED",
         "LOW_RISK":            "AUTHENTIC",
     }.get(risk, "REVIEW_RECOMMENDED")
+

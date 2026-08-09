@@ -14,8 +14,8 @@ Usage:
     python scripts/validate_pipeline.py --api-key sk_test_xxx [--gateway http://localhost:8000]
 
 Exit code:
-    0 — all assertions pass
-    1 — one or more assertions failed
+    0 - all assertions pass
+    1 - one or more assertions failed
 """
 
 from __future__ import annotations
@@ -31,12 +31,12 @@ from typing import Dict, List, Optional, Tuple
 
 import httpx
 
-# ─── Gateway base URL ─────────────────────────────────────────────────────────
+# --- Gateway base URL ---------------------------------------------------------
 DEFAULT_GATEWAY = "http://localhost:8000"
 POLL_INTERVAL   = 2.0   # seconds between status polls
 POLL_TIMEOUT    = 120.0  # seconds before giving up on a task
 
-# ─── Section 8 — required top-level fields in a complete scan result ──────────
+# --- Section 8 - required top-level fields in a complete scan result ----------
 REQUIRED_RESULT_FIELDS = {
     "task_id", "authenticity_evidence_score", "risk_level", "confidence_interval",
     "primary_anomaly", "anomaly_timestamps", "modalities_scanned", "model_results",
@@ -50,18 +50,18 @@ VALID_ACTIONS     = {"AUTHENTIC", "REVIEW_RECOMMENDED", "AUTO_HOLD_FOR_HUMAN_TRI
 VALID_FUSION      = {"stacking", "averaging", "voting"}
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Test sample generation
 # We synthesize minimal samples locally rather than fetching large datasets,
 # so this script runs without internet access after initial setup.
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def _make_real_jpeg(index: int = 0) -> bytes:
     """Generate a simple natural-looking JPEG (solid color gradient) as 'real' image."""
     try:
         from PIL import Image as PILImage
         import numpy as np
-        # Natural gradients — low-frequency, no GAN upsampling artifacts
+        # Natural gradients - low-frequency, no GAN upsampling artifacts
         w, h = 512, 512
         arr = np.zeros((h, w, 3), dtype=np.uint8)
         arr[:, :, 0] = np.linspace(60 + index * 10, 180, w, dtype=np.uint8)
@@ -96,7 +96,7 @@ def _make_synthetic_jpeg(index: int = 0) -> bytes:
         from PIL import Image as PILImage
         import numpy as np
         w, h = 512, 512
-        # Checkerboard + noise — mimics GAN upsampling artifacts
+        # Checkerboard + noise - mimics GAN upsampling artifacts
         arr = np.zeros((h, w, 3), dtype=np.uint8)
         xx, yy = np.meshgrid(np.arange(w), np.arange(h))
         checker = ((xx // 4 + yy // 4 + index) % 2) * 200
@@ -109,7 +109,7 @@ def _make_synthetic_jpeg(index: int = 0) -> bytes:
         img.save(buf, format="JPEG", quality=95)
         return buf.getvalue()
     except ImportError:
-        return _make_real_jpeg(index)  # fallback — will result in similar scores
+        return _make_real_jpeg(index)  # fallback - will result in similar scores
 
 
 def _generate_test_samples() -> List[Tuple[str, bytes, str]]:
@@ -124,9 +124,9 @@ def _generate_test_samples() -> List[Tuple[str, bytes, str]]:
     return samples
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Pipeline interaction
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 async def submit_scan(
     session: httpx.AsyncClient,
@@ -135,7 +135,7 @@ async def submit_scan(
     filename: str,
     file_bytes: bytes,
 ) -> Optional[str]:
-    """POST /api/v1/scan-media → returns task_id or None on error."""
+    """POST /api/v1/scan-media -> returns task_id or None on error."""
     url = f"{gateway}/api/v1/scan-media"
     headers = {"Authorization": f"Bearer {api_key}"}
     try:
@@ -150,10 +150,10 @@ async def submit_scan(
             data = resp.json()
             return data.get("task_id")
         else:
-            print(f"    ❌ Scan submit failed: HTTP {resp.status_code} — {resp.text[:200]}")
+            print(f"    [FAIL] Scan submit failed: HTTP {resp.status_code} - {resp.text[:200]}")
             return None
     except Exception as exc:
-        print(f"    ❌ Scan submit error: {exc}")
+        print(f"    [FAIL] Scan submit error: {exc}")
         return None
 
 
@@ -176,19 +176,19 @@ async def poll_task(
                 if status == "complete":
                     return data.get("result")
                 elif status == "failed":
-                    print(f"    ❌ Task {task_id} failed: {data.get('error')}")
+                    print(f"    [FAIL] Task {task_id} failed: {data.get('error')}")
                     return None
-                # queued or processing — keep polling
+                # queued or processing - keep polling
         except Exception as exc:
-            print(f"    ⚠️  Poll error: {exc}")
+            print(f"    [WARN]  Poll error: {exc}")
         await asyncio.sleep(POLL_INTERVAL)
-    print(f"    ❌ Task {task_id} timed out after {POLL_TIMEOUT}s")
+    print(f"    [FAIL] Task {task_id} timed out after {POLL_TIMEOUT}s")
     return None
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # Validation logic
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 def validate_schema(result: dict) -> List[str]:
     """Returns list of schema violation strings (empty = pass)."""
@@ -238,7 +238,7 @@ async def main() -> int:
     args = parser.parse_args()
 
     print("\n" + "="*70)
-    print("TRINETRA — End-to-End Pipeline Validation")
+    print("TRINETRA - End-to-End Pipeline Validation")
     print("="*70)
     print(f"Gateway : {args.gateway}")
     print(f"API Key : {args.api_key[:20]}...")
@@ -250,7 +250,7 @@ async def main() -> int:
             health = await session.get(f"{args.gateway}/api/v1/system-health", timeout=5.0)
             print(f"Gateway health: {health.json()}")
         except Exception as exc:
-            print(f"❌ Gateway unreachable at {args.gateway}: {exc}")
+            print(f"[FAIL] Gateway unreachable at {args.gateway}: {exc}")
             return 1
 
     samples = _generate_test_samples()
@@ -281,14 +281,14 @@ async def main() -> int:
             aes = result.get("authenticity_evidence_score", -1)
             fusion = result.get("fusion_method_used", "?")
             violations = validate_schema(result)
-            schema_ok = "✅" if not violations else f"❌({len(violations)})"
+            schema_ok = "[OK]" if not violations else f"[FAIL]({len(violations)})"
 
             print(f"  {filename:<30} {expected_class:<12} {aes:>5}  {schema_ok:<8} {fusion}")
 
             if violations:
                 schema_errors += len(violations)
                 for v in violations:
-                    print(f"    ⚠️  {v}")
+                    print(f"    [WARN]  {v}")
 
             if args.verbose:
                 print(json.dumps(result, indent=2, default=str))
@@ -298,7 +298,7 @@ async def main() -> int:
             else:
                 synthetic_scores.append(aes)
 
-    # ── Summary ───────────────────────────────────────────────────────────────
+    # -- Summary ---------------------------------------------------------------
     print("\n" + "="*70)
     print("RESULTS SUMMARY")
     print("="*70)
@@ -306,34 +306,35 @@ async def main() -> int:
     if real_scores and synthetic_scores:
         avg_real = sum(real_scores) / len(real_scores)
         avg_synth = sum(synthetic_scores) / len(synthetic_scores)
-        print(f"  Avg AES — Real samples      : {avg_real:.1f}")
-        print(f"  Avg AES — Synthetic samples : {avg_synth:.1f}")
+        print(f"  Avg AES - Real samples      : {avg_real:.1f}")
+        print(f"  Avg AES - Synthetic samples : {avg_synth:.1f}")
 
-        # AES is Authenticity Evidence Score — higher means more likely authentic.
+        # AES is Authenticity Evidence Score - higher means more likely authentic.
         # Real samples should score HIGHER (more authentic).
         # Synthetic samples should score LOWER.
         directionality_ok = avg_real > avg_synth
-        directionality_status = "✅ PASS" if directionality_ok else "❌ FAIL"
+        directionality_status = "[OK] PASS" if directionality_ok else "[FAIL] FAIL"
         print(f"  Directionality (real > synth AES) : {directionality_status}")
 
         if not directionality_ok:
-            print("  ⚠️  NOTE: If all containers are still in dev mode (random weights),")
+            print("  [WARN]  NOTE: If all containers are still in dev mode (random weights),")
             print("      scores will be near-random. Check Docker logs for 'DEVELOPMENT MODE' warnings.")
             total_failures += 1
     else:
-        print("  ⚠️  Not enough samples completed to evaluate directionality.")
+        print("  [WARN]  Not enough samples completed to evaluate directionality.")
         total_failures += 1
 
     print(f"  Schema violations : {schema_errors}")
     print(f"  Submit/poll failures : {total_failures}")
 
     if total_failures == 0 and schema_errors == 0:
-        print("\n✅  All validation checks PASSED — pipeline is ready for frontend handoff.")
+        print("\n[OK]  All validation checks PASSED - pipeline is ready for frontend handoff.")
         return 0
     else:
-        print(f"\n❌  Validation FAILED ({total_failures} failures, {schema_errors} schema errors).")
+        print(f"\n[FAIL]  Validation FAILED ({total_failures} failures, {schema_errors} schema errors).")
         return 1
 
 
 if __name__ == "__main__":
     sys.exit(asyncio.run(main()))
+

@@ -1,7 +1,7 @@
-"""
+﻿"""
 api/main.py
 -----------
-TRINETRA FastAPI Gateway — primary entry point.
+TRINETRA FastAPI Gateway - primary entry point.
 
 All routes are prefixed /api/v1 per the Section 8 contract.
 """
@@ -20,14 +20,14 @@ from api.routes import scan, task, history, keys, health
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: nothing heavy to do here — Celery workers initialise separately
+    # Startup: nothing heavy to do here - Celery workers initialise separately
     yield
     # Shutdown: nothing to clean up
 
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="TRINETRA — Multimodal Deepfake Detection API",
+        title="TRINETRA - Multimodal Deepfake Detection API",
         version="1.0.0",
         description=(
             "Enterprise-grade, asynchronous B2B deepfake triage API.\n\n"
@@ -66,9 +66,10 @@ def create_app() -> FastAPI:
     # ── Root redirect ─────────────────────────────────────────────────────────
     @app.get("/", include_in_schema=False)
     async def root():
-        return JSONResponse({"message": "TRINETRA API — see /docs for the OpenAPI spec."})
+        return JSONResponse({"message": "TRINETRA API - see /docs for the OpenAPI spec."})
 
     return app
 
 
 app = create_app()
+

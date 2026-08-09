@@ -1,4 +1,4 @@
-"""
+﻿"""
 scripts/health_check.py
 -----------------------
 Phase 11 validation script.
@@ -10,8 +10,8 @@ Usage:
     python scripts/health_check.py
 
 Exit code:
-    0 — all containers healthy
-    1 — one or more containers unreachable or unhealthy
+    0 - all containers healthy
+    1 - one or more containers unreachable or unhealthy
 """
 
 from __future__ import annotations
@@ -46,7 +46,7 @@ async def main() -> int:
     enabled = [m for m in registry if m.get("enabled")]
 
     print(f"\n{'='*60}")
-    print("TRINETRA — Model Container Health Check")
+    print("TRINETRA - Model Container Health Check")
     print(f"{'='*60}\n")
     print(f"Checking {len(enabled)} model container(s)...\n")
 
@@ -55,16 +55,16 @@ async def main() -> int:
 
     all_ok = True
     for name, ok, detail in results:
-        status = "✅ OK" if ok else "❌ FAIL"
-        print(f"  [{status}] {name:<25}  {detail}")
+        status = "[OK]  " if ok else "[FAIL]"
+        print(f"  {status} {name:<25}  {detail}")
         if not ok:
             all_ok = False
 
     print(f"\n{'='*60}")
     if all_ok:
-        print("✅  All containers healthy — build is handoff-ready.")
+        print("[OK]  All containers healthy -- build is handoff-ready.")
     else:
-        print("❌  One or more containers are unhealthy. Review logs before handoff.")
+        print("[FAIL]  One or more containers are unhealthy. Review logs before handoff.")
     print(f"{'='*60}\n")
 
     return 0 if all_ok else 1
@@ -72,3 +72,4 @@ async def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(asyncio.run(main()))
+

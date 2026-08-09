@@ -1,10 +1,10 @@
-"""
+﻿"""
 api/models.py
 -------------
 Pydantic data models for the TRINETRA API contract (Section 8).
 
 These schemas define the exact shape of every request and response body.
-The frontend team builds against these schemas — do not rename or restructure
+The frontend team builds against these schemas - do not rename or restructure
 fields without coordinating with them first.
 """
 
@@ -94,7 +94,7 @@ class ScanResult(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# POST /api/v1/scan-media — response
+# POST /api/v1/scan-media - response
 # ─────────────────────────────────────────────────────────────────────────────
 
 class ScanSubmitResponse(BaseModel):
@@ -103,7 +103,7 @@ class ScanSubmitResponse(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GET /api/v1/task/{task_id} — response
+# GET /api/v1/task/{task_id} - response
 # ─────────────────────────────────────────────────────────────────────────────
 
 class TaskStatusResponse(BaseModel):
@@ -114,7 +114,7 @@ class TaskStatusResponse(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GET /api/v1/history — response
+# GET /api/v1/history - response
 # ─────────────────────────────────────────────────────────────────────────────
 
 class HistoryResponse(BaseModel):
@@ -123,7 +123,7 @@ class HistoryResponse(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GET /api/v1/system-health — response
+# GET /api/v1/system-health - response
 # ─────────────────────────────────────────────────────────────────────────────
 
 class SystemHealthResponse(BaseModel):
@@ -132,7 +132,7 @@ class SystemHealthResponse(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# POST /api/v1/keys — request + response
+# POST /api/v1/keys - request + response
 # ─────────────────────────────────────────────────────────────────────────────
 
 class KeyCreateRequest(BaseModel):
@@ -148,7 +148,7 @@ class KeyCreateResponse(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# POST /api/v1/webhook-url — request + response
+# POST /api/v1/webhook-url - request + response
 # ─────────────────────────────────────────────────────────────────────────────
 
 class WebhookRegisterRequest(BaseModel):
@@ -158,3 +158,4 @@ class WebhookRegisterRequest(BaseModel):
 class WebhookRegisterResponse(BaseModel):
     registered_url: str
     updated_at: datetime
+

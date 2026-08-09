@@ -1,4 +1,4 @@
-"""
+﻿"""
 models/video/sbi/wrapper.py
 ---------------------------
 SBI (Self-Blended Images) face-swap boundary artifact detector microservice.
@@ -36,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from sdk.base_wrapper import BaseModelWrapper  # noqa: E402
 
 # ---------------------------------------------------------------------------
-# XceptionNet backbone (same as FTCN fallback — reused here)
+# XceptionNet backbone (same as FTCN fallback - reused here)
 # ---------------------------------------------------------------------------
 
 class SeparableConv2d(nn.Module):
@@ -188,3 +188,4 @@ class SBIWrapper(BaseModelWrapper):
 
 _wrapper = SBIWrapper()
 app = _wrapper.build_app()
+

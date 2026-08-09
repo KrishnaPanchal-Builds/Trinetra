@@ -1,7 +1,7 @@
-"""
+﻿"""
 fusion/combiner.py
 ------------------
-Phase 5: Fusion Layer — combines model probability scores into a single AES.
+Phase 5: Fusion Layer - combines model probability scores into a single AES.
 
 Strategy (per Section 7 of the implementation plan):
   - Stacking (primary):   A trained scikit-learn meta-learner is fitted on
@@ -30,7 +30,7 @@ import numpy as np
 
 COMBINER_WEIGHTS_PATH = Path(__file__).resolve().parent / "weights" / "combiner.pkl"
 
-# Fixed model order — must match the feature vector the meta-learner was trained on
+# Fixed model order - must match the feature vector the meta-learner was trained on
 MODEL_FEATURE_ORDER = [
     "aasist",
     "rawnet2",
@@ -174,3 +174,4 @@ def _stacking_confidence(meta_learner: Any, feature_vec: np.ndarray, prob: float
     if distance > 0.15:
         return "MEDIUM"
     return "LOW"
+

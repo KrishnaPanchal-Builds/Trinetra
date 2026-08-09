@@ -1,10 +1,10 @@
-"""
+﻿"""
 models/audio/rawnet2/wrapper.py
 -------------------------------
 RawNet2 anti-spoofing microservice.
 
 Source: https://github.com/Jungjee/RawNet  (also bundled in AASIST repo)
-Model:  RawNet2 — end-to-end raw-waveform anti-spoofing model.
+Model:  RawNet2 - end-to-end raw-waveform anti-spoofing model.
 
 Note: RawNet2 (anti-spoofing) NOT RawNet3 (speaker-verification).
       See Section 2 of TRINETRA_Backend_Implementation_Plan.md.
@@ -185,7 +185,7 @@ class RawNet2Wrapper(BaseModelWrapper):
             if unexpected:
                 print(f"[RawNet2] WARNING: unexpected keys: {unexpected[:5]}{'...' if len(unexpected) > 5 else ''}")
             pretrained = any("_pretrained" in str(weights_path) for _ in [0])
-            print("[RawNet2] Weights loaded (initialized, not pretrained — awaiting real checkpoint).")
+            print("[RawNet2] Weights loaded (initialized, not pretrained - awaiting real checkpoint).")
         else:
             print("[RawNet2] WARNING: weights not found or empty. Running in DEVELOPMENT mode.")
 
@@ -213,3 +213,4 @@ class RawNet2Wrapper(BaseModelWrapper):
 
 _wrapper = RawNet2Wrapper()
 app = _wrapper.build_app()
+

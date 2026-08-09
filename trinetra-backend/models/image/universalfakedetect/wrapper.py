@@ -1,4 +1,4 @@
-"""
+﻿"""
 models/image/universalfakedetect/wrapper.py
 -------------------------------------------
 UniversalFakeDetect microservice.
@@ -7,7 +7,7 @@ Source: https://github.com/WisconsinAIVision/UniversalFakeDetect
 Model:  CLIP ViT-L/14 backbone with a linear classifier trained to generalize
         across unseen generators (DALL·E, Midjourney, SD, etc.).
 
-This is the key out-of-distribution generalizer — the model is not tuned to
+This is the key out-of-distribution generalizer - the model is not tuned to
 specific GAN artifacts but to generic CLIP-space features that differentiate
 real vs. synthetic images from any generator.
 
@@ -43,7 +43,7 @@ try:
     _CLIP_AVAILABLE = True
 except ImportError:
     _CLIP_AVAILABLE = False
-    print("[UFD] WARNING: 'clip' package not installed — will use fallback ViT from timm.")
+    print("[UFD] WARNING: 'clip' package not installed - will use fallback ViT from timm.")
 
 # Try timm as fallback
 try:
@@ -149,3 +149,4 @@ class UniversalFakeDetectWrapper(BaseModelWrapper):
 
 _wrapper = UniversalFakeDetectWrapper()
 app = _wrapper.build_app()
+
