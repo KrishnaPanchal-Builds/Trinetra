@@ -67,7 +67,7 @@ export function AppShell({
         />
 
         {/* Main Content Area */}
-        <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8">
+        <main id="main-content" className="flex-1 px-4 py-6 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           <div className={["mx-auto w-full flex flex-col gap-6", maxWidthClass].join(" ")}>
             {children}
           </div>

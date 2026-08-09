@@ -14,13 +14,13 @@ export function AnalysisLogsPage() {
         title: "Analysis Logs",
         environment: "sandbox",
         breadcrumbs: [
-          { label: "Portal", href: "/portal" },
-          { label: "Analysis Logs" },
+          { label: "Workspace", href: "/portal" },
+          { label: "Logs" },
         ],
       }}
     >
       <SectionHeading
-        eyebrow="Analysis"
+        eyebrow="LOGS"
         title="Analysis Logs"
         description="Complete searchable history of all media submitted through the TRINETRA API. High-risk items are flagged and linked to forensic evidence."
         action={

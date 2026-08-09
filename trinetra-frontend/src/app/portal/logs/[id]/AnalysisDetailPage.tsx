@@ -178,8 +178,8 @@ export function AnalysisDetailPage({ entry }: { entry: AnalysisLogEntry }) {
         title: entry.task_id,
         environment: entry.api_key_source === "live" ? "production" : "sandbox",
         breadcrumbs: [
-          { label: "Portal", href: "/portal" },
-          { label: "Analysis Logs", href: "/portal/logs" },
+          { label: "Workspace", href: "/portal" },
+          { label: "Logs", href: "/portal/logs" },
           { label: entry.task_id },
         ],
       }}

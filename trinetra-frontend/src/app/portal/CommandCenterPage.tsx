@@ -190,7 +190,7 @@ export function PortalOverviewPage() {
     >
       {/* ── Page Header ── */}
       <SectionHeading
-        eyebrow="Workspace Overview"
+        eyebrow="OVERVIEW"
         title="Verification infrastructure at a glance."
         description="Monitor verification activity, API usage, and the health of your organization's TRINETRA workspace."
         action={

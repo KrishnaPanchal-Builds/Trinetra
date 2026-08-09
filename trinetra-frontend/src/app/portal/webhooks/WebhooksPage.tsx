@@ -404,13 +404,13 @@ export function WebhooksPage() {
         title: "Webhooks",
         environment: "sandbox",
         breadcrumbs: [
-          { label: "Portal", href: "/portal" },
+          { label: "Workspace", href: "/portal" },
           { label: "Webhooks" },
         ],
       }}
     >
       <SectionHeading
-        eyebrow="Integration"
+        eyebrow="INTEGRATION"
         title="Webhooks"
         description="Register callback URLs to receive analysis results automatically. TRINETRA POSTs a structured JSON payload to your endpoint within 18 seconds of scan completion."
         action={

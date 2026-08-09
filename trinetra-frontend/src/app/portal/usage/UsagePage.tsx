@@ -527,14 +527,14 @@ export function UsagePage() {
         title: "Usage & Credits",
         environment: "sandbox",
         breadcrumbs: [
-          { label: "Portal", href: "/portal" },
+          { label: "Workspace", href: "/portal" },
           { label: "Usage & Credits" },
         ],
       }}
     >
       {/* ── Page Header ── */}
       <SectionHeading
-        eyebrow="Billing"
+        eyebrow="OBSERVABILITY"
         title="Usage & Credits"
         description="Track scan consumption, credit balance, model pipeline usage, and cost across all API environments."
         action={

@@ -9,6 +9,7 @@ import {
   ShieldAlert,
   Settings,
   Users,
+  ScanSearch,
   type LucideIcon,
 } from "lucide-react";
 
@@ -44,6 +45,12 @@ export const PORTAL_NAV: NavSection[] = [
         label: "Overview",
         href: "/portal",
         icon: LayoutDashboard,
+      },
+      {
+        id: "verification",
+        label: "Verification",
+        href: "/portal/verification",
+        icon: ScanSearch,
       },
       {
         id: "sandbox",
