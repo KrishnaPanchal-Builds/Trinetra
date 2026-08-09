@@ -101,18 +101,30 @@ class UniversalFakeDetectWrapper(BaseModelWrapper):
             weights_path = Path(self.WEIGHTS_PATH)
             if weights_path.exists():
                 state = torch.load(weights_path, map_location=device)
-                # UFD checkpoint may contain full probe state or just classifier
-                if isinstance(state, dict) and "fc.weight" in state:
-                    # Only classifier head saved
-                    self._probe.classifier.load_state_dict(
-                        {"weight": state["fc.weight"], "bias": state["fc.bias"]}
-                    )
-                elif isinstance(state, dict) and "classifier.weight" in state:
-                    self._probe.classifier.weight.data = state["classifier.weight"]
-                    self._probe.classifier.bias.data = state["classifier.bias"]
-                else:
-                    self._probe.load_state_dict(state, strict=False)
-                print("[UFD] Loaded UniversalFakeDetect weights.")
+                # fc_weights.pth from UFD HuggingFace mirror stores:
+                #   {"fc.weight": Tensor[1, 768], "fc.bias": Tensor[1]}
+                # We load these into self._probe.classifier (a nn.Linear(768, 1)).
+                try:
+                    if isinstance(state, dict) and "fc.weight" in state:
+                        classifier_state = {
+                            "weight": state["fc.weight"],
+                            "bias":   state["fc.bias"],
+                        }
+                        self._probe.classifier.load_state_dict(classifier_state, strict=True)
+                        print("[UFD] Loaded fc_weights.pth classifier head (fc.weight / fc.bias).")
+                    elif isinstance(state, dict) and "classifier.weight" in state:
+                        classifier_state = {
+                            "weight": state["classifier.weight"],
+                            "bias":   state["classifier.bias"],
+                        }
+                        self._probe.classifier.load_state_dict(classifier_state, strict=True)
+                        print("[UFD] Loaded classifier.weight / classifier.bias.")
+                    else:
+                        # Try loading full probe state (rare but possible)
+                        self._probe.load_state_dict(state, strict=False)
+                        print("[UFD] Loaded full probe state_dict.")
+                except Exception as e:
+                    print(f"[UFD] WARNING: state_dict load failed ({e}). Using random head.")
             else:
                 print("[UFD] WARNING: classifier weights not found. Dev mode (random head).")
 

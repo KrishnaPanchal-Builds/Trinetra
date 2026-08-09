@@ -22,13 +22,30 @@ COPY sdk/                        /app/sdk/
 COPY models/video/ftcn/          /app/models/video/ftcn/
 
 RUN mkdir -p /app/weights
-# FTCN weights via DeepfakeBench releases or FTCN repo releases
+# ── Weight download ────────────────────────────────────────────────────────
+# FTCN uses an Xception backbone (XceptionFallback in wrapper.py).
+# We use DeepfakeBench's Xception c23 weights (trained on FaceForensics++).
+# Strategy:
+#   1. gdown from DeepfakeBench Google Drive (official).
+#   2. HuggingFace SCLBD mirror.
+#   3. ResNet50 ImageNet weights as structural fallback (container starts, accuracy limited).
 ARG SKIP_WEIGHT_DOWNLOAD=0
 RUN if [ "$SKIP_WEIGHT_DOWNLOAD" = "0" ]; then \
-        wget -q -O /app/weights/ftcn.pth \
-            "https://github.com/SCLBD/DeepfakeBench/releases/download/v1.0.0/ftcn.pth" \
-        && echo "FTCN weights downloaded." \
-        || echo "WARNING: FTCN weights unavailable — dev mode."; \
+        pip install --no-cache-dir gdown \
+        && echo "Downloading FTCN/Xception weights from DeepfakeBench..." \
+        && ( gdown --fuzzy \
+                "https://drive.google.com/uc?id=1A7ViPGx14DwYE2jIcGsaBLFJhNPsWpKM" \
+                -O /app/weights/ftcn.pth \
+             && echo "FTCN weights downloaded (Google Drive)." ) \
+        || ( echo "Trying HuggingFace SCLBD mirror..." \
+             && wget -q --show-progress -O /app/weights/ftcn.pth \
+                "https://huggingface.co/SCLBD/DeepfakeBench/resolve/main/pretrained/xception_c23.pth" \
+             && echo "FTCN weights downloaded (HuggingFace)." ) \
+        || ( echo "WARNING: Could not get deepfake-trained Xception. Using ImageNet ResNet50 fallback..." \
+             && wget -q -O /app/weights/ftcn.pth \
+                "https://download.pytorch.org/models/resnet50-0676ba61.pth" \
+             && echo "FTCN structural fallback weights downloaded." ) \
+        || echo "WARNING: FTCN weights unavailable — container starts in dev mode."; \
     fi
 
 ENV FTCN_REPO_ROOT=/app/ftcn_repo

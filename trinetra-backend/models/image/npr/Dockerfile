@@ -33,16 +33,21 @@ COPY models/image/npr/     /app/models/image/npr/
 # runtime via the download script below.
 RUN mkdir -p /app/weights
 
-# ── Weight download (optional — runs only if weights/ is empty) ────────────
-# The NPR repo ships weights as a GitHub release asset.
-# Download at build time so the image is self-contained.
-# If SKIP_WEIGHT_DOWNLOAD=1 is set (e.g., in dev/CI), skip this step.
+# ── Weight download ────────────────────────────────────────────────────────
+# NPR.pth is hosted on HuggingFace (siddharthksah/deepsafe-weights).
+# The GitHub release URL does not exist; the HuggingFace URL is authoritative.
+# If SKIP_WEIGHT_DOWNLOAD=1 (dev/CI), skip this step.
 ARG SKIP_WEIGHT_DOWNLOAD=0
 RUN if [ "$SKIP_WEIGHT_DOWNLOAD" = "0" ]; then \
-        wget -q -O /app/weights/npr.pth \
-            "https://github.com/chuangchuangtan/NPR-DeepfakeDetection/releases/download/v1.0/NPR.pth" \
-        && echo "NPR weights downloaded." \
-        || echo "WARNING: could not download NPR weights — dev mode will use random weights."; \
+        echo "Downloading NPR weights from HuggingFace..." \
+        && wget -q --show-progress -O /app/weights/npr.pth \
+            "https://huggingface.co/siddharthksah/deepsafe-weights/resolve/main/NPR.pth" \
+        && echo "NPR weights downloaded (HuggingFace)." \
+        || ( echo "WARNING: HuggingFace download failed. Trying secondary source..." \
+             && wget -q -O /app/weights/npr.pth \
+                "https://huggingface.co/datasets/siddharthksah/deepsafe-weights/resolve/main/NPR.pth" \
+             && echo "NPR weights downloaded (secondary)." \
+             || echo "WARNING: could not download NPR weights — container starts in dev mode." ); \
     fi
 
 # ── Healthcheck ───────────────────────────────────────────────────────────
