@@ -1,0 +1,244 @@
+@import "tailwindcss";
+
+/* ============================================================
+   TRINETRA DESIGN SYSTEM — v1.0
+   CSS Custom Properties + Tailwind v4 @theme tokens
+   Light mode default. No dark mode.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. SEMANTIC COLOR TOKENS (CSS variables, :root)
+   These are the source-of-truth values referenced everywhere.
+   ------------------------------------------------------------ */
+:root {
+  /* Surface / Canvas */
+  --color-surface-app:            #F7F9FB;
+  --color-surface-base:           #FFFFFF;
+  --color-surface-subtle:         #F2F4F6;
+  --color-surface-raised:         #ECEEF0;
+
+  /* Borders */
+  --color-border-default:         #E0E3E8;
+  --color-border-strong:          #C8CDD5;
+
+  /* Text */
+  --color-text-primary:           #0F172A;
+  --color-text-secondary:         #475569;
+  --color-text-tertiary:          #94A3B8;
+  --color-text-inverse:           #FFFFFF;
+
+  /* Brand / Action */
+  --color-brand-600:              #0047B3;
+  --color-brand-500:              #0052CC;
+  --color-brand-400:              #1E6FE6;
+  --color-brand-100:              #DBEAFE;
+  --color-brand-50:               #EFF6FF;
+
+  /* Risk — Critical (AES 0–25) */
+  --color-risk-critical:          #991B1B;
+  --color-risk-critical-bg:       #FEF2F2;
+  --color-risk-critical-border:   #FECACA;
+
+  /* Risk — High (AES 26–49) */
+  --color-risk-high:              #B45309;
+  --color-risk-high-bg:           #FFFBEB;
+  --color-risk-high-border:       #FDE68A;
+
+  /* Risk — Medium (AES 50–69) */
+  --color-risk-medium:            #92400E;
+  --color-risk-medium-bg:         #FFF7ED;
+  --color-risk-medium-border:     #FED7AA;
+
+  /* Risk — Low / Authentic (AES 70–100) */
+  --color-risk-low:               #065F46;
+  --color-risk-low-bg:            #ECFDF5;
+  --color-risk-low-border:        #A7F3D0;
+
+  /* Status */
+  --color-status-processing:      #1D4ED8;
+  --color-status-processing-bg:   #EFF6FF;
+  --color-status-failed:          #7C3AED;
+  --color-status-failed-bg:       #F5F3FF;
+
+  /* Shadows */
+  --shadow-modal:   0 4px 16px rgba(15,23,42,0.08);
+  --shadow-dropdown:0 2px 8px rgba(15,23,42,0.08);
+  --shadow-tooltip: 0 1px 4px rgba(15,23,42,0.10);
+}
+
+/* ------------------------------------------------------------
+   2. TAILWIND v4 THEME MAPPING
+   Maps CSS variables to Tailwind utility classes.
+   e.g. --color-surface-base → bg-surface-base, text-surface-base
+   ------------------------------------------------------------ */
+@theme {
+  /* Fonts — variables set by next/font in layout.tsx */
+  --font-sans:  var(--font-geist-sans);
+  --font-mono:  var(--font-jetbrains-mono);
+
+  /* Surface */
+  --color-surface-app:            var(--color-surface-app);
+  --color-surface-base:           var(--color-surface-base);
+  --color-surface-subtle:         var(--color-surface-subtle);
+  --color-surface-raised:         var(--color-surface-raised);
+
+  /* Borders */
+  --color-border-default:         var(--color-border-default);
+  --color-border-strong:          var(--color-border-strong);
+
+  /* Text */
+  --color-text-primary:           var(--color-text-primary);
+  --color-text-secondary:         var(--color-text-secondary);
+  --color-text-tertiary:          var(--color-text-tertiary);
+  --color-text-inverse:           var(--color-text-inverse);
+
+  /* Brand */
+  --color-brand-600:              var(--color-brand-600);
+  --color-brand-500:              var(--color-brand-500);
+  --color-brand-400:              var(--color-brand-400);
+  --color-brand-100:              var(--color-brand-100);
+  --color-brand-50:               var(--color-brand-50);
+
+  /* Risk — Critical */
+  --color-risk-critical:          var(--color-risk-critical);
+  --color-risk-critical-bg:       var(--color-risk-critical-bg);
+  --color-risk-critical-border:   var(--color-risk-critical-border);
+
+  /* Risk — High */
+  --color-risk-high:              var(--color-risk-high);
+  --color-risk-high-bg:           var(--color-risk-high-bg);
+  --color-risk-high-border:       var(--color-risk-high-border);
+
+  /* Risk — Medium */
+  --color-risk-medium:            var(--color-risk-medium);
+  --color-risk-medium-bg:         var(--color-risk-medium-bg);
+  --color-risk-medium-border:     var(--color-risk-medium-border);
+
+  /* Risk — Low */
+  --color-risk-low:               var(--color-risk-low);
+  --color-risk-low-bg:            var(--color-risk-low-bg);
+  --color-risk-low-border:        var(--color-risk-low-border);
+
+  /* Status */
+  --color-status-processing:      var(--color-status-processing);
+  --color-status-processing-bg:   var(--color-status-processing-bg);
+  --color-status-failed:          var(--color-status-failed);
+  --color-status-failed-bg:       var(--color-status-failed-bg);
+
+  /* Border radius */
+  --radius-none:    0px;
+  --radius-sm:      2px;
+  --radius-DEFAULT: 4px;
+  --radius-md:      6px;
+  --radius-lg:      8px;
+  --radius-full:    9999px;
+
+  /* Spacing overrides (4px base unit) */
+  --spacing-1:  4px;
+  --spacing-2:  8px;
+  --spacing-3:  12px;
+  --spacing-4:  16px;
+  --spacing-5:  20px;
+  --spacing-6:  24px;
+  --spacing-8:  32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+}
+
+/* ------------------------------------------------------------
+   3. BASE STYLES
+   Applied to html / body. Minimal — no decorative overrides.
+   ------------------------------------------------------------ */
+html {
+  background-color: var(--color-surface-app);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-app);
+}
+
+/* ------------------------------------------------------------
+   4. FOCUS RING — Global accessible focus style
+   ------------------------------------------------------------ */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/* Remove default outline when focus-visible is handled */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ------------------------------------------------------------
+   5. TYPOGRAPHY — Base element defaults
+   (Component-level classes are defined per-component)
+   ------------------------------------------------------------ */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text-primary);
+}
+
+p {
+  color: var(--color-text-secondary);
+}
+
+code, kbd, samp, pre {
+  font-family: var(--font-mono), "Courier New", monospace;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------
+   6. SCROLLBAR — Subtle, consistent
+   ------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* ------------------------------------------------------------
+   7. SELECTION
+   ------------------------------------------------------------ */
+::selection {
+  background-color: var(--color-brand-100);
+  color: var(--color-brand-600);
+}
+
+/* ------------------------------------------------------------
+   8. MOTION — Respect prefers-reduced-motion
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
