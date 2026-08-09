@@ -392,13 +392,13 @@ export function SandboxPage() {
         title: "Sandbox",
         environment: "sandbox",
         breadcrumbs: [
-          { label: "Portal", href: "/portal" },
+          { label: "Workspace", href: "/portal" },
           { label: "Sandbox" },
         ],
       }}
     >
       <SectionHeading
-        eyebrow="Analysis"
+        eyebrow="VERIFICATION"
         title="Sandbox"
         description="Test the TRINETRA verification pipeline with any media file without writing code. Results use the same forensic models as the production API."
         action={

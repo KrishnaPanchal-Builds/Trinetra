@@ -168,11 +168,11 @@ export function SettingsPage() {
       topBarProps={{
         title: "Settings",
         environment: "sandbox",
-        breadcrumbs: [{ label: "Portal", href: "/portal" }, { label: "Settings" }],
+        breadcrumbs: [{ label: "Workspace", href: "/portal" }, { label: "Settings" }],
       }}
     >
       <SectionHeading
-        eyebrow="Account"
+        eyebrow="ACCOUNT"
         title="Settings"
         description="Manage your organisation profile, notification preferences, security, and account-level configuration."
       />

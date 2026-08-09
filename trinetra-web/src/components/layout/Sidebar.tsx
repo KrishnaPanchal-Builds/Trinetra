@@ -147,7 +147,7 @@ export function Sidebar({
       </div>
 
       {/* Navigation items list */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-6">
+      <div className="flex-1 overflow-y-auto px-3 py-4 flex flex-col gap-5">
         {PORTAL_NAV.map((section) => (
           <nav
             key={section.label}

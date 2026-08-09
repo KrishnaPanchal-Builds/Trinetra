@@ -1,0 +1,10 @@
+import type { Metadata } from "next";
+import { TeamPage } from "./TeamPage";
+
+export const metadata: Metadata = {
+  title: "Team",
+};
+
+export default function PortalTeamPage() {
+  return <TeamPage />;
+}

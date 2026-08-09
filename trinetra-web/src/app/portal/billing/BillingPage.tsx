@@ -292,11 +292,11 @@ export function BillingPage() {
       topBarProps={{
         title: "Billing",
         environment: "sandbox",
-        breadcrumbs: [{ label: "Portal", href: "/portal" }, { label: "Billing" }],
+        breadcrumbs: [{ label: "Workspace", href: "/portal" }, { label: "Billing" }],
       }}
     >
       <SectionHeading
-        eyebrow="Billing"
+        eyebrow="BILLING"
         title="Billing"
         description="Manage your subscription plan, purchase credits, review invoices, and update payment details."
         action={

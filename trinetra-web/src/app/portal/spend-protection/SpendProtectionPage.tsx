@@ -87,11 +87,11 @@ export function SpendProtectionPage() {
       topBarProps={{
         title: "Spend Protection",
         environment: "sandbox",
-        breadcrumbs: [{ label: "Portal", href: "/portal" }, { label: "Spend Protection" }],
+        breadcrumbs: [{ label: "Workspace", href: "/portal" }, { label: "Spend Protection" }],
       }}
     >
       <SectionHeading
-        eyebrow="Billing"
+        eyebrow="BILLING"
         title="Spend Protection"
         description="Configure a hard spending cap to prevent unexpected overage charges. When the cap is reached, TRINETRA automatically stops processing new scan requests until the cap is raised or the billing period resets."
       />

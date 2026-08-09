@@ -292,13 +292,13 @@ export function APIKeysPage() {
         title: "API Keys",
         environment: "sandbox",
         breadcrumbs: [
-          { label: "Portal", href: "/portal" },
+          { label: "Workspace", href: "/portal" },
           { label: "API Keys" },
         ],
       }}
     >
       <SectionHeading
-        eyebrow="Integration"
+        eyebrow="INTEGRATION"
         title="API Keys"
         description="Manage your live and sandbox API keys. Keys are included as Bearer tokens in every request to the TRINETRA scan endpoint."
         action={
